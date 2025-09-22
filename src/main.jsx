@@ -28,12 +28,12 @@ export async function subscribeToPush(token) {
     let subscriptionToken;
     let token_type;
 
+    const registration = await navigator.serviceWorker.ready;
     if (isIOS) {
       // Use Web Push for iOS
       if (!('PushManager' in window)) {
         throw new Error('Push messaging is not supported on this browser.');
       }
-      const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
@@ -45,7 +45,10 @@ export async function subscribeToPush(token) {
     } else {
       // Use FCM for Android/other
       // TODO: You need to replace 'YOUR_VAPID_KEY' with your actual VAPID key from Firebase console
-      const fcmToken = await getToken(messaging, { vapidKey: "BKjARESEQ_QEOC_QEGf7Ps86FAd3vvBSTeYbj8DUmSjGU6oWDaW0yzPA_EijKDJcE1_ImXFPi8yzE5srY9S82Gg" });
+      const fcmToken = await getToken(messaging, { 
+        vapidKey: "BKjARESEQ_QEOC_QEGf7Ps86FAd3vvBSTeYbj8DUmSjGU6oWDaW0yzPA_EijKDJcE1_ImXFPi8yzE5srY9S82Gg",
+        serviceWorkerRegistration: registration 
+      });
       if (!fcmToken) {
         throw new Error("Could not get FCM token.");
       }
