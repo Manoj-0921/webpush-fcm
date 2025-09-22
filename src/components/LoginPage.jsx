@@ -16,7 +16,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe }) {
       } else if (isAndroid) {
         platform = 'android';
       }
-      const res = await fetch("https://cc2d7305d43f.ngrok-free.app/login", {
+      const res = await fetch("https://670fb4cf3274.ngrok-free.app/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, platform }),
