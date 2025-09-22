@@ -17,6 +17,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
         className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full"
       >
         {status}
+        <span className="text-xs text-gray-500"> (Push Notifications)</span>
       </button>
       <button
         onClick={handleLogout}
