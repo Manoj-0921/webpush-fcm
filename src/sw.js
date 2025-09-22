@@ -1,13 +1,13 @@
 import { precacheAndRoute } from "workbox-precaching";
-importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js");
+import { initializeApp } from "firebase/app";
+import { getMessaging, onBackgroundMessage } from "firebase/messaging/sw";
 
 // Injected by Workbox
 precacheAndRoute(self.__WB_MANIFEST);
 
 // TODO: Add your own Firebase configuration here
 const firebaseConfig = {
-apiKey: "AIzaSyCJnkRJfxoFGnjbpzFweHcA88RFNZ6gLIU",
+  apiKey: "AIzaSyCJnkRJfxoFGnjbpzFweHcA88RFNZ6gLIU",
   authDomain: "fcm1-f49bf.firebaseapp.com",
   projectId: "fcm1-f49bf",
   storageBucket: "fcm1-f49bf.firebasestorage.app",
@@ -15,12 +15,11 @@ apiKey: "AIzaSyCJnkRJfxoFGnjbpzFweHcA88RFNZ6gLIU",
   appId: "1:33514454153:web:1b0b71240313e0f3c65a58"
 };
 
-firebase.initializeApp(firebaseConfig);
-
-const messaging = firebase.messaging();
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
 // Handle FCM background messages
-messaging.onBackgroundMessage((payload) => {
+onBackgroundMessage(messaging, (payload) => {
   console.log(
     "[sw.js] Received background message ",
     payload
