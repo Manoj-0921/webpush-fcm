@@ -12,9 +12,8 @@ export default defineConfig({
     VitePWA({
       registerType: "prompt",
       strategies: "injectManifest", // 👈 Required for custom SW
-      injectManifest: {
-        swSrc: "src/sw.js",
-      },
+      srcDir: "src",
+      filename: "sw.js",
       manifest: {
         name: "My Vite PWA",
         short_name: "PWA",
