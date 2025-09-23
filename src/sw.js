@@ -5,7 +5,7 @@ import { getMessaging, onBackgroundMessage } from "firebase/messaging/sw";
 // Injected by Workbox
 precacheAndRoute(self.__WB_MANIFEST);
 
-// TODO: Add your own Firebase configuration here
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCJnkRJfxoFGnjbpzFweHcA88RFNZ6gLIU",
   authDomain: "fcm1-f49bf.firebaseapp.com",
@@ -18,47 +18,70 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// Handle FCM background messages
+// Handle FCM background messages (Android only)
 onBackgroundMessage(messaging, (payload) => {
-  console.log(
-    "[sw.js] Received background message ",
-    payload
-  );
-  // Customize notification here
-  const notificationTitle = payload.notification.title;
+  const notificationTitle = payload.data?.title || "Notification";
   const notificationOptions = {
-    body: payload.notification.body,
+    body: payload.data?.body || "You have a new message.",
     icon: "/pwa-192x192.png",
+    badge: "/pwa-192x192.png",
   };
-
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
-
-
-// Handle web push notifications (for iOS)
+// Handle Web Push notifications (iOS/Safari)
 self.addEventListener("push", (event) => {
-  // This listener will be triggered for web push notifications.
-  // FCM messages are handled by onBackgroundMessage.
-  // We can add a check to see if the push event is from FCM and ignore it,
-  // but usually they don't overlap if configured correctly.
+  console.log("[sw.js] Push received.", event);
 
-  let data = {};
-  if (event.data) {
-    data = event.data.json();
+  try {
+    if (event.data) {
+      const data = event.data.json();
+      if (data && data["firebase-messaging-msg-data"]) {
+        // It's an FCM message, skip handling here
+        return;
+      }
+    }
+  } catch (e) {
+    // continue to handle as web push
   }
 
-  const title = data.title || "Push Notification";
-  const options = {
-    body: data.body || "You have a new message.",
-    icon: "pwa-192x192.png",
-    badge: "pwa-192x192.png",
-  };
+  // Handle as a normal web push
+  let data = {};
+  try {
+    if (event.data) {
+      data = event.data.json();
+    }
+  } catch (e) {
+    data = { title: "Push", body: "You have a new messasdsdssdsdge." };
+  }
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  const title = data.title;
+  const body = data.body;
+
+  if (title && body) {
+    const options = {
+      body: body,
+      icon: "/pwa-192x192.png",
+      badge: "/pwa-192x192.png",
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+  }
+  // If title or body is missing, do not display a notification
 });
 
-// Handle notification click
+// (Optional) Handle notification click
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  event.waitUntil(clients.openWindow("/"));
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === "/" && "focus" in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow("/");
+      }
+    })
+  );
 });
+

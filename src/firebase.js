@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getMessaging, onMessage } from "firebase/messaging";
+import { getMessaging, onMessage, } from "firebase/messaging";
 
 // TODO: Add your own Firebase configuration here
 const firebaseConfig = {
@@ -17,11 +17,16 @@ apiKey: "AIzaSyCJnkRJfxoFGnjbpzFweHcA88RFNZ6gLIU",
 const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
 
-// Handle foreground messages
+// // Handle foreground messages
 onMessage(messaging, (payload) => {
-  console.log("Foreground message received.", payload);
-  // Show an alert instead of a notification
-  const notificationTitle = payload.notification.title;
-  const notificationBody = payload.notification.body;
-  alert(`${notificationTitle}\n${notificationBody}`);
+  // Only show alert if title and body are present
+  const notificationTitle = payload.notification?.title || payload.data?.title;
+  const notificationBody = payload.notification?.body || payload.data?.body;
+
+  if (notificationTitle && notificationBody) {
+    alert(`${notificationTitle}\n${notificationBody}`);
+  }
+  // If undefined, do nothing
 });
+
+
