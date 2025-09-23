@@ -57,7 +57,7 @@ self.addEventListener("push", (event) => {
   const title = data.title;
   const body = data.body;
 
-  if (title && body) {
+  if (title && body) {                                                                                                  
     const options = {
       body: body,
       icon: "/pwa-192x192.png",

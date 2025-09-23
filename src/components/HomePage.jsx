@@ -1,6 +1,6 @@
 function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, setStatus }) {
   const handleLogout = async () => {
-    await fetch("https://2f357fadf5a0.ngrok-free.app/logout", {
+    await fetch("https://8c3e60ce26e2.ngrok-free.app/logout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
