@@ -1,0 +1,191 @@
+.date-selector-container1 {
+  /* max-width: 450px; 24rem */
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  margin-top: 10px;
+}
+
+.custom-card {
+  margin-bottom: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  padding: 0;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px;
+}
+
+.custom-button {
+  flex: 1;
+  border-radius: 8px;
+  font-size: 16px;
+  height: 44px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+}
+
+.custom-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.date-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding: 10px;
+}
+
+.date-column {
+  flex: 1;
+}
+
+.date-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.range-picker {
+  width: 100%;
+  height: 44px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+.ant-card .ant-card-body {
+  padding: 0 !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+.shortcut-tabs {
+  display: flex;
+  gap: 12px;
+  background: transparent;
+  justify-content: flex-start;
+}
+
+.shortcut-tab {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 12px;
+  background: #f7f7fa;
+  color: #222;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.shortcut-tab.active {
+  background: #4f6ef7;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(79, 110, 247, 0.08);
+}
+
+.shortcut-tab:not(.active):hover {
+  background: #e4e8f7;
+  color: #222;
+}
+
+/* Card styles for all sections */
+/* .custom-card {
+  margin-bottom: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: #fff;
+  padding: 0;
+} */
+
+/* Shortcut Tabs Card */
+/* .shortcut-tabs-card {
+  padding: 16px 12px;
+} */
+
+/* Date Pickers Card */
+/* .date-pickers-card {
+  padding: 16px 12px;
+} */
+
+/* Shortcut Tabs */
+/* .shortcut-tabs {
+  display: flex;
+  gap: 12px;
+  background: transparent;
+  justify-content: flex-start;
+}
+
+.shortcut-tab {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 12px;
+  background: #f7f7fa;
+  color: #222;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.shortcut-tab.active {
+  background: #4f6ef7;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(79, 110, 247, 0.08);
+}
+
+.shortcut-tab:not(.active):hover {
+  background: #e4e8f7;
+  color: #222;
+} */
+
+/* Date Row */
+/* .date-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.date-column {
+  flex: 1;
+}
+
+.date-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.range-picker {
+  width: 100%;
+  height: 44px;
+  font-size: 16px;
+  border-radius: 8px;
+} */
+
+/* Responsive tweaks */
+@media (max-width: 500px) {
+  .custom-card {
+    padding: 8px 4px;
+    border-radius: 12px;
+  }
+  .shortcut-tab {
+    font-size: 15px;
+    padding: 8px 0;
+  }
+  .date-label,
+  .date-value {
+    font-size: 14px;
+  }
+}

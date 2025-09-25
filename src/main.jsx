@@ -4,8 +4,9 @@ import App from "./App.jsx";
 import "./index.css";
 import { messaging } from "./firebase"; // Import Firebase messaging
 import { getToken } from "firebase/messaging";
+import axios from "axios";
 
-export async function subscribeToPush(token) {
+export async function subscribeToPush(username) {
   if (!('serviceWorker' in navigator)) {
     throw new Error('Service workers are not supported in this browser.');
   }
@@ -56,11 +57,12 @@ export async function subscribeToPush(token) {
       token_type = 'fcm';
     }
 
-    console.log(subscriptionToken, "subscription", token, "token", token_type, "token_type");
-    await fetch("https://8c3e60ce26e2.ngrok-free.app/subscribe", {
-      method: "POST",
-      body: JSON.stringify({ token, subscription: subscriptionToken, token_type, platform }),
-      headers: { "Content-Type": "application/json" },
+    console.log(subscriptionToken, "subscription", username, "token", token_type, "token_type");
+    await axios.post("https://587dbd329342.ngrok-free.app/subscribe", {
+      username,
+      subscription: subscriptionToken,
+      token_type,
+      platform,
     });
     console.log("Subscribed to push");
 
