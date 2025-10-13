@@ -4,6 +4,9 @@ import { subscribeToPush } from "./main.jsx";
 import LoginPage from "./components/LoginPage.jsx";
 import HomePage from "./components/Home/HomePage.jsx";
 import Admin from "./components/Admin/Admin.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import "./App.css";
 
 function AppRoutes({ token, setToken, status, setStatus, loginStatus, setLoginStatus, role, setRole, handleSubscribe }) {
@@ -85,23 +88,22 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <AppRoutes
-        token={token}
-        setToken={setToken}
-        status={status}
-        setStatus={setStatus}
-        loginStatus={loginStatus}
-        setLoginStatus={setLoginStatus}
-        role={role}
-        setRole={setRole}
-        handleSubscribe={handleSubscribe}
-      />
-      {/* Optionally show a message if login failed */}
-      {loginStatus === false && token === null && (
-        <div className="text-sm text-center text-red-500 mt-4">not found</div>
-      )}
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <AppRoutes
+          token={token}
+          setToken={setToken}
+          status={status}
+          setStatus={setStatus}
+          loginStatus={loginStatus}
+          setLoginStatus={setLoginStatus}
+          role={role}
+          setRole={setRole}
+          handleSubscribe={handleSubscribe}
+        />
+      </BrowserRouter>
+      <ToastContainer position="top-right" autoClose={4000} hideProgressBar={true} />
+    </>
   );
 }
 

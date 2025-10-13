@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Date from "../Date/Date";
 import Data from "../Data/Data";
 import "./HomePage.css";
-import { Layout, theme } from "antd";
+import { Layout, theme, Select } from "antd"; // removed Button, Space
 import { LogoutOutlined } from "@ant-design/icons";
 import axios from "axios";
 
@@ -11,13 +11,14 @@ const { Header, Content, Footer } = Layout;
 function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, setStatus }) {
   const [data, setData] = useState([]);
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+  const [activeLearningOption, setActiveLearningOption] = useState(""); // <-- new state
   const {
     token: { borderRadiusLG },
   } = theme.useToken();
 
   // Robust logout logic
   const handleLogout = async () => {
-    await axios.post("https://587dbd329342.ngrok-free.app/logout", {
+    await axios.post("https://40da073dfe40.ngrok-free.app/api/logout_mobile", {
       username: token,
     });
     setToken(null);
@@ -39,8 +40,8 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
 
     try {
       const response = await axios.post(
-        "https://2631998197dd.ngrok-free.app/api/active_learning_mobile",
-        { startDate, endDate },
+        "https://40da073dfe40.ngrok-free.app/api/active_learning_mobile",
+        { startDate, endDate, option: activeLearningOption || undefined }, // include option
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -55,7 +56,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
-            "https://2631998197dd.ngrok-free.app/api/check_reset_elgibility",
+            "https://40da073dfe40.ngrok-free.app/api/check_reset_elgibility",
             { username, refreshToken }
           );
 
@@ -100,6 +101,17 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     }
   };
 
+  const handleOptionChange = (val) => {
+    setActiveLearningOption(val);
+    // auto-apply when option changed
+    fetchFromBackend(dateRange);
+  };
+
+  const handleClearOption = () => {
+    setActiveLearningOption("");
+    setData([]); // clear UI values (adjust if you prefer re-fetch)
+  };
+
   return (
     <Layout hasSider>
       <Layout>
@@ -127,6 +139,23 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
               setDateRange={setDateRange}
             />
           </div>
+
+          {/* responsive select controls placed below Date section */}
+          <div className="select-controls">
+            <Select
+              value={activeLearningOption || undefined}
+              onChange={handleOptionChange}
+              placeholder="Active Learning"
+              allowClear
+              style={{ minWidth: 160, maxWidth: 300, width: "40%" }}
+              options={[
+                { label: "All", value: "all" },
+                { label: "2", value: "2" },
+                { label: "3", value: "3" },
+              ]}
+            />
+          </div>
+
           <div
             style={{
               paddingTop: 1,
@@ -137,15 +166,6 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
           >
             <Data data={data} onRefresh={() => fetchFromBackend(dateRange)} />
           </div>
-          {/* <div className="flex justify-center mt-4">
-            <button
-              onClick={() => handleSubscribe(token)}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              {status}
-              <span className="text-xs text-gray-200 ml-2">(Push Notifications)</span>
-            </button>
-          </div> */}
         </Content>
 
         <Footer style={{ textAlign: "center" }} />

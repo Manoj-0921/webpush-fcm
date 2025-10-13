@@ -1,6 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getMessaging, onMessage, } from "firebase/messaging";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // TODO: Add your own Firebase configuration here
 const firebaseConfig = {
@@ -19,14 +21,15 @@ export const messaging = getMessaging(app);
 
 // // Handle foreground messages
 onMessage(messaging, (payload) => {
-  // Only show alert if title and body are present
   const notificationTitle = payload.notification?.title || payload.data?.title;
   const notificationBody = payload.notification?.body || payload.data?.body;
 
   if (notificationTitle && notificationBody) {
-    alert(`${notificationTitle}\n${notificationBody}`);
+    toast.info(`${notificationTitle}\n${notificationBody}`, {
+      position: "top-right",
+      autoClose: 5000,
+    });
   }
-  // If undefined, do nothing
 });
 
 

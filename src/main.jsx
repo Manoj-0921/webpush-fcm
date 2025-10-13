@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
+import "antd/dist/reset.css"; // For Ant Design v5+or Ant Design v5+
 import { messaging } from "./firebase"; // Import Firebase messaging
 import { getToken } from "firebase/messaging";
 import axios from "axios";
@@ -58,7 +59,7 @@ export async function subscribeToPush(username) {
     }
 
     console.log(subscriptionToken, "subscription", username, "token", token_type, "token_type");
-    await axios.post("https://587dbd329342.ngrok-free.app/subscribe", {
+    await axios.post("https://40da073dfe40.ngrok-free.app/api/subscribe", {
       username,
       subscription: subscriptionToken,
       token_type,

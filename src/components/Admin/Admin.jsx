@@ -109,7 +109,7 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
   const handleLogout = async () => {
-    await axios.post("https://587dbd329342.ngrok-free.app/logout", {
+    await axios.post("https://40da073dfe40.ngrok-free.app/logout", {
       username: token,
     });
     setToken(null);
