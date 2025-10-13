@@ -59,7 +59,7 @@ export async function subscribeToPush(username) {
     }
 
     console.log(subscriptionToken, "subscription", username, "token", token_type, "token_type");
-    await axios.post("https://40da073dfe40.ngrok-free.app/api/subscribe", {
+    await axios.post("https://7b2983718e7a.ngrok-free.app/api/subscribe", {
       username,
       subscription: subscriptionToken,
       token_type,

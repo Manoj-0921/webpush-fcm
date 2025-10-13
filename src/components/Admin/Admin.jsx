@@ -11,12 +11,13 @@ const { Option } = Select;
 
 const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setStatus }) => {
   const [hierarchyData, setHierarchyData] = useState({});
-  const [selectedDept, setSelectedDept] = useState(null);
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedDept, setSelectedDept] = useState("All");
+  const [selectedTeam, setSelectedTeam] = useState("All");
   const [members, setMembers] = useState([]);
   const [startDate, setStartDate] = useState(dayjs());
   const [endDate, setEndDate] = useState(dayjs());
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     fetchHierarchyData();
@@ -25,22 +26,63 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
 
   const fetchHierarchyData = async () => {
     try {
-      const response = await axios.get(
-        "https://2631998197dd.ngrok-free.app/api/get_departments"
+      // POST with empty body and proper config (backend returns [hierarchyData])
+      const response = await axios.post(
+        "https://7b2983718e7a.ngrok-free.app/api/get_departments",
+        {}, // empty body
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
+
+      console.log(response.data, "response");
       if (response.status === 200) {
-        const department = Object.keys(response.data);
-        if (department.length > 0) {
-          setSelectedDept(department[0]);
-          const teams = Array.isArray(response.data[department[0]])
-            ? response.data[department[0]]
-            : [];
+        // backend returns an array with hierarchy object: [hierarchyData]
+        const respData =
+          Array.isArray(response.data) && response.data.length && typeof response.data[0] === "object"
+            ? response.data[0]
+            : response.data && typeof response.data === "object"
+            ? response.data
+            : {};
+
+        // collect all unique teams across departments
+        const allTeamsSet = new Set();
+        Object.keys(respData).forEach((d) => {
+          const teams = Array.isArray(respData[d]) ? respData[d] : [];
+          teams.forEach((t) => allTeamsSet.add(t));
+        });
+        const allTeams = Array.from(allTeamsSet);
+
+        // Build new hierarchy including "All" entry
+        const newResp = { All: allTeams, ...respData };
+
+        // Ensure each department/team list includes "All" as first option
+        Object.keys(newResp).forEach((k) => {
+          if (!Array.isArray(newResp[k])) newResp[k] = [];
+          if (!newResp[k].includes("All")) newResp[k].unshift("All");
+        });
+
+        setHierarchyData(newResp);
+
+        // set defaults
+        const departments = Object.keys(newResp);
+        if (departments.length > 0) {
+          const firstDept = departments[0];
+          setSelectedDept(firstDept);
+
+          const teams = Array.isArray(newResp[firstDept]) ? newResp[firstDept] : [];
           if (teams.length > 0) {
             setSelectedTeam(teams[0]);
-            fetchMembers(department[0], teams[0], startDate, endDate);
+            // fetch members: if "All" selected, send nulls so backend can handle appropriately
+            if (teams[0] === "All") {
+              fetchMembers(null, null, startDate, endDate);
+            } else {
+              fetchMembers(firstDept, teams[0], startDate, endDate);
+            }
           }
         }
-        setHierarchyData(response.data);
       }
     } catch (err) {
       console.error("❌ Error fetching hierarchy data:", err);
@@ -49,14 +91,33 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
 
   const handleDeptChange = (value) => {
     setSelectedDept(value);
-    setSelectedTeam(null);
+    // default team to "All" if available
+    setSelectedTeam("All");
     setMembers([]);
+    // immediately fetch members for the new department (All => all teams)
+    if (value === "All") {
+      fetchMembers(null, null, startDate, endDate);
+    } else {
+      const teams = Array.isArray(hierarchyData[value]) ? hierarchyData[value] : [];
+      const teamToFetch = teams && teams.length ? teams[0] : null;
+      setSelectedTeam(teamToFetch || "All");
+      if (teamToFetch === "All" || teamToFetch === null) {
+        fetchMembers(value, null, startDate, endDate);
+      } else {
+        fetchMembers(value, teamToFetch, startDate, endDate);
+      }
+    }
   };
 
   const handleTeamChange = (value) => {
     setSelectedTeam(value);
     if (startDate && endDate) {
-      fetchMembers(selectedDept, value, startDate, endDate);
+      if (selectedDept === "All") {
+        // dept = all, team selection applies across all departments
+        fetchMembers(null, value === "All" ? null : value, startDate, endDate);
+      } else {
+        fetchMembers(selectedDept, value === "All" ? null : value, startDate, endDate);
+      }
     }
   };
 
@@ -75,14 +136,19 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
   };
 
   const fetchMembers = async (department, team, start, end) => {
+    // send null/undefined for department/team when "All" selected so backend can return aggregated data
+    const deptToSend = department || undefined;
+    const teamToSend = team || undefined;
+
+    console.log(deptToSend, teamToSend, start.format("YYYY-MM-DD: HH:mm:ss"), end.format("YYYY-MM-DD: HH:mm:ss"), "fetchMembers params");
     try {
       const response = await axios.post(
-        "https://2631998197dd.ngrok-free.app/api/get_department_team_members",
+        "https://7b2983718e7a.ngrok-free.app/api/get_department_team_members",
         {
-          department,
-          team,
-          startDate: start.format("YYYY-MM-DD"),
-          endDate: end.format("YYYY-MM-DD"),
+          department: deptToSend,
+          team: teamToSend,
+          startDate: start.format("YYYY-MM-DD : HH:mm:ss"),
+          endDate: end.format("YYYY-MM-DD : HH:mm:ss"),
         },
         {
           headers: {
@@ -90,7 +156,7 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
           },
         }
       );
-
+      console.log(response.data, "members response");
       if (response.status === 200) {
         setMembers(
           response.data.data.map((member, index) => ({
@@ -109,7 +175,7 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
   const handleLogout = async () => {
-    await axios.post("https://40da073dfe40.ngrok-free.app/logout", {
+    await axios.post("https://7b2983718e7a.ngrok-free.app/api/logout_mobile", {
       username: token,
     });
     setToken(null);
@@ -126,7 +192,7 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
   const handleToggleNotification = async (systemId, enabled) => {
     try {
       await axios.post(
-        "https://2631998197dd.ngrok-free.app/api/update_notification_status",
+        "https://7b2983718e7a.ngrok-free.app/api/update_notification_status",
         { system_id: systemId, enabled },
         {
           headers: {

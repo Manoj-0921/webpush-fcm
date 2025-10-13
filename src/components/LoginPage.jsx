@@ -47,7 +47,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
         platform = 'android';
       }
       console.log(platform,"platform");
-      const res = await axios.post("https://40da073dfe40.ngrok-free.app/api/login_mobile", {
+      const res = await axios.post("https://7b2983718e7a.ngrok-free.app/api/login_mobile", {
         username: values.username,
         password: values.password,
         platform,

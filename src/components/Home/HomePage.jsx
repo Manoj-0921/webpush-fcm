@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import Date from "../Date/Date";
 import Data from "../Data/Data";
+import SelectControls from "../Select";
 import "./HomePage.css";
-import { Layout, theme, Select } from "antd"; // removed Button, Space
+import { Layout, theme } from "antd"; // removed Button, Space
 import { LogoutOutlined } from "@ant-design/icons";
 import axios from "axios";
 
@@ -11,14 +12,14 @@ const { Header, Content, Footer } = Layout;
 function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, setStatus }) {
   const [data, setData] = useState([]);
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
-  const [activeLearningOption, setActiveLearningOption] = useState(""); // <-- new state
+  const [activeLearningOption, setActiveLearningOption] = useState("main"); // default selection
   const {
     token: { borderRadiusLG },
   } = theme.useToken();
 
   // Robust logout logic
   const handleLogout = async () => {
-    await axios.post("https://40da073dfe40.ngrok-free.app/api/logout_mobile", {
+    await axios.post("https://7b2983718e7a.ngrok-free.app/api/logout_mobile", {
       username: token,
     });
     setToken(null);
@@ -32,16 +33,17 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
   };
 
   // Data fetching logic with token refresh
-  const fetchFromBackend = async (dates) => {
+  // now accepts optional `option` and sends it to backend
+  const fetchFromBackend = async (dates, option) => {
     const username = localStorage.getItem("username");
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
-    const { startDate, endDate } = dates;
+    const { startDate, endDate } = dates || dateRange;
 
     try {
       const response = await axios.post(
-        "https://40da073dfe40.ngrok-free.app/api/active_learning_mobile",
-        { startDate, endDate, option: activeLearningOption || undefined }, // include option
+        "https://7b2983718e7a.ngrok-free.app/api/active_learning_mobile",
+        { startDate, endDate, gate: option || activeLearningOption }, // send option
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -56,7 +58,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
-            "https://40da073dfe40.ngrok-free.app/api/check_reset_elgibility",
+            "https://7b2983718e7a.ngrok-free.app/api/check_reset_elgibility",
             { username, refreshToken }
           );
 
@@ -101,15 +103,11 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     }
   };
 
-  const handleOptionChange = (val) => {
+  // handler called when SelectControls changes
+  const handleSelectChange = (val) => {
     setActiveLearningOption(val);
-    // auto-apply when option changed
-    fetchFromBackend(dateRange);
-  };
-
-  const handleClearOption = () => {
-    setActiveLearningOption("");
-    setData([]); // clear UI values (adjust if you prefer re-fetch)
+    // send selected value + current dateRange to backend
+    fetchFromBackend(dateRange, val);
   };
 
   return (
@@ -126,45 +124,26 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
         </Header>
 
         <Content style={{ marginTop: 64, overflow: "initial" }}>
-          <div
-            style={{
-              paddingTop: 4,
-              textAlign: "center",
-              background: " #f5f6fa",
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <Date
-              fetchFromBackend={fetchFromBackend}
-              setDateRange={setDateRange}
-            />
+          <div style={{ paddingTop: 4, textAlign: "center", background: " #f5f6fa", borderRadius: borderRadiusLG }}>
+            <Date fetchFromBackend={fetchFromBackend} setDateRange={setDateRange} />
           </div>
 
-          {/* responsive select controls placed below Date section */}
-          <div className="select-controls">
-            <Select
-              value={activeLearningOption || undefined}
-              onChange={handleOptionChange}
-              placeholder="Active Learning"
-              allowClear
-              style={{ minWidth: 160, maxWidth: 300, width: "40%" }}
+          {/* pass value and handler so select sends option -> backend with dateRange */}
+          <div style={{ paddingTop: 1, textAlign: "center", background: " #f5f6fa", borderRadius: borderRadiusLG }}>
+            <SelectControls
+              value={activeLearningOption}
+              onChange={handleSelectChange}
               options={[
-                { label: "All", value: "all" },
-                { label: "2", value: "2" },
-                { label: "3", value: "3" },
+                { label: "Main ", value: "main" },
+                { label: "Dept", value: "dept" },
+                { label: "Common", value: "common" },
               ]}
+              placeholder="Choose scope"
             />
           </div>
 
-          <div
-            style={{
-              paddingTop: 1,
-              textAlign: "center",
-              background: " #f5f6fa",
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <Data data={data} onRefresh={() => fetchFromBackend(dateRange)} />
+          <div style={{ paddingTop: 1, textAlign: "center", background: " #f5f6fa", borderRadius: borderRadiusLG }}>
+            <Data data={data} onRefresh={() => fetchFromBackend(dateRange, activeLearningOption)} />
           </div>
         </Content>
 

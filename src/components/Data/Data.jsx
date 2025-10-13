@@ -17,9 +17,17 @@ import "./Data.css";
 const { Option } = Select;
 dayjs.extend(duration);
 
-const Data = ({ data, onRefresh }) => {
+const Data = ({ data, onRefresh, onOptionChange }) => {
   const [activeTab, setActiveTab] = useState("events");
   const [pageIndex, setPageIndex] = useState(0);
+  const [activeLearningOption, setActiveLearningOption] = useState("main");
+
+  // Do NOT call onRefresh here — emit option change separately
+  const handleOptionChange = (val) => {
+    setActiveLearningOption(val);
+    if (typeof onOptionChange === "function") onOptionChange(val);
+  };
+
   const itemsPerPage = 5;
 
   if (!Array.isArray(data)) {
@@ -48,6 +56,10 @@ const Data = ({ data, onRefresh }) => {
       duration: totalMinutes,
     };
   });
+
+  // removed invalid handlers that referenced undefined fetchFromBackend/dateRange
+  // when option changes, update local state and trigger parent's refresh if provided
+
 
   console.log(chartData, "dd");
 
@@ -85,6 +97,8 @@ const Data = ({ data, onRefresh }) => {
 
   return (
     <div className="container1">
+  
+
       <div className="card-summary-container">
         <div className="card login-card">
           <p className="card-label">Total Logins</p>
@@ -92,6 +106,13 @@ const Data = ({ data, onRefresh }) => {
         </div>
 
         <div className="card duration-card">
+
+
+
+
+
+
+          
           <p className="card-label">Total Duration</p>
           <h1 className="card-value green-text">{totalDurationStr}</h1>
         </div>

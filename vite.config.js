@@ -16,7 +16,7 @@ export default defineConfig({
       filename: "sw.js",
       manifest: {
         name: "My Vite PWA",
-        short_name: "PWA",
+        short_name: "NexZig",
         start_url: "/",
         display: "standalone",
         background_color: "#ffffff",

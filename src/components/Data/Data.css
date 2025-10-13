@@ -237,3 +237,28 @@
 .tab-refresh-btn:hover {
   background: #e4e8f7;
 }
+
+/* make select almost full width of the card (slightly smaller) */
+.select-card {
+  padding: 12px 16px;
+}
+
+.select-card .select-controls {
+  display: flex;
+  justify-content: center;
+}
+
+/* select width: a little less than card width */
+.fullwidth-select {
+  width: calc(100% - 32px) !important; /* leave horizontal padding inside card */
+  max-width: 440px; /* prevents it from becoming too wide on large screens */
+  min-width: 220px;
+}
+
+/* small screens: full width */
+@media (max-width: 480px) {
+  .fullwidth-select {
+    width: 100% !important;
+    max-width: none;
+  }
+}
