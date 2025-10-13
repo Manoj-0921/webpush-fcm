@@ -28,6 +28,7 @@ onMessage(messaging, (payload) => {
     toast.info(`${notificationTitle}\n${notificationBody}`, {
       position: "top-right",
       autoClose: 5000,
+      closeButton:false
     });
   }
 });

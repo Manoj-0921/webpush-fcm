@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import dayjs from "dayjs"; // <-- added
 import Date from "../Date/Date";
 import Data from "../Data/Data";
 import SelectControls from "../Select";
@@ -12,10 +13,13 @@ const { Header, Content, Footer } = Layout;
 function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, setStatus }) {
   const [data, setData] = useState([]);
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
-  const [activeLearningOption, setActiveLearningOption] = useState("main"); // default selection
+  const [activeLearningOption, setActiveLearningOption] = useState(undefined); // no default
+  const [gateOptions, setGateOptions] = useState([]); // options fetched from backend
   const {
     token: { borderRadiusLG },
   } = theme.useToken();
+
+
 
   // Robust logout logic
   const handleLogout = async () => {
@@ -35,12 +39,20 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
   // Data fetching logic with token refresh
   // now accepts optional `option` and sends it to backend
   const fetchFromBackend = async (dates, option) => {
+    const { startDate, endDate } = dates || dateRange;
+
+    // guard: don't call backend when dates are missing -> avoids 400
+    if (!startDate || !endDate) {
+      console.warn("fetchFromBackend: missing startDate or endDate, skipping request");
+      return;
+    }
+
     const username = localStorage.getItem("username");
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
-    const { startDate, endDate } = dates || dateRange;
 
     try {
+      console.log("Fetching data with:", { startDate, endDate, gate: option || activeLearningOption });
       const response = await axios.post(
         "https://7b2983718e7a.ngrok-free.app/api/active_learning_mobile",
         { startDate, endDate, gate: option || activeLearningOption }, // send option
@@ -103,6 +115,85 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     }
   };
 
+  // fetch select options from backend (run on mount and when token changes)
+  useEffect(() => {
+    const fetchGateOptions = async () => {
+      try {
+        const resp = await axios.post("https://7b2983718e7a.ngrok-free.app/api/gates", {});
+        console.log(resp.data, "gates response");
+
+        if (resp.status === 200 && resp.data && resp.data.success) {
+          let gatesRaw = resp.data.gates;
+
+          if (gatesRaw && !Array.isArray(gatesRaw) && typeof gatesRaw === "object") {
+            gatesRaw = Object.values(gatesRaw);
+          }
+
+          const gates = Array.isArray(gatesRaw) ? gatesRaw : [];
+          const opts = gates.map((g) =>
+            typeof g === "string"
+              ? { label: g, value: g }
+              : { label: g.name || g.label || String(g.id ?? g.value), value: g.id ?? g.value ?? g.name }
+          );
+
+          setGateOptions(opts);
+
+          // prepare dateRange fallback to "today" if parent dateRange is empty
+          const todayStart = dayjs().startOf("day").format("YYYY-MM-DD HH:mm:ss");
+          const todayEnd = dayjs().endOf("day").format("YYYY-MM-DD HH:mm:ss");
+          const datesToUse = (dateRange?.startDate && dateRange?.endDate)
+            ? dateRange
+            : { startDate: todayStart, endDate: todayEnd };
+
+          // ensure parent has the dateRange (Date component will reconcile if user changes)
+          if (!dateRange?.startDate || !dateRange?.endDate) {
+            setDateRange(datesToUse);
+          }
+
+          // if nothing selected yet, pick first option and fetch backend with dateRange (today fallback)
+          if ((!activeLearningOption || activeLearningOption === undefined) && opts.length > 0) {
+            const firstVal = opts[0].value;
+            setActiveLearningOption(firstVal);
+            // send the computed dates (today if none) with the selected gate
+            fetchFromBackend(datesToUse, firstVal);
+          }
+        } else {
+          setGateOptions([]);
+        }
+      } catch (err) {
+        console.warn("Failed to load gate options:", err);
+        setGateOptions([]);
+      }
+    };
+
+    fetchGateOptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  // When gate options arrive set default selection but only fetch if dates exist.
+  useEffect(() => {
+    if (gateOptions.length === 0) return;
+
+    if ((!activeLearningOption || activeLearningOption === undefined) && gateOptions.length > 0) {
+      const firstVal = gateOptions[0].value;
+      setActiveLearningOption(firstVal);
+
+      // only fetch when dateRange has start/end
+      if (dateRange?.startDate && dateRange?.endDate) {
+        fetchFromBackend(dateRange, firstVal);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gateOptions]);
+
+  // When user picks date range (Date component updates dateRange), fetch if gate selected
+  useEffect(() => {
+    if (activeLearningOption && dateRange?.startDate && dateRange?.endDate) {
+      fetchFromBackend(dateRange, activeLearningOption);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange]);
+
   // handler called when SelectControls changes
   const handleSelectChange = (val) => {
     setActiveLearningOption(val);
@@ -133,11 +224,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
             <SelectControls
               value={activeLearningOption}
               onChange={handleSelectChange}
-              options={[
-                { label: "Main ", value: "main" },
-                { label: "Dept", value: "dept" },
-                { label: "Common", value: "common" },
-              ]}
+              options={gateOptions} /* populated from backend */
               placeholder="Choose scope"
             />
           </div>

@@ -29,10 +29,9 @@ const Date = ({ fetchFromBackend, setDateRange }) => {
         startDate: startDate.format("YYYY-MM-DD HH:mm:ss"),
         endDate: endDate.format("YYYY-MM-DD HH:mm:ss"),
       };
-      setDateRange(range); // Update parent's date range
-      fetchFromBackend(range);
+      setDateRange(range); // only update parent's date range — DO NOT call fetchFromBackend here
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, setDateRange]);
 
   return (
     <div className="date-selector-container1">
