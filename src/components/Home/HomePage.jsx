@@ -120,52 +120,30 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     const fetchGateOptions = async () => {
       try {
         const resp = await axios.post("https://backend.schmidvision.com/api/gates", {});
-        console.log(resp.data, "gates response");
-
         if (resp.status === 200 && resp.data && resp.data.success) {
           let gatesRaw = resp.data.gates;
-
           if (gatesRaw && !Array.isArray(gatesRaw) && typeof gatesRaw === "object") {
             gatesRaw = Object.values(gatesRaw);
           }
-
           const gates = Array.isArray(gatesRaw) ? gatesRaw : [];
           const opts = gates.map((g) =>
             typeof g === "string"
               ? { label: g, value: g }
               : { label: g.name || g.label || String(g.id ?? g.value), value: g.id ?? g.value ?? g.name }
           );
-
           setGateOptions(opts);
 
-          // prepare dateRange fallback to "today" if parent dateRange is empty
-          const todayStart = dayjs().startOf("day").format("YYYY-MM-DD HH:mm:ss");
-          const todayEnd = dayjs().endOf("day").format("YYYY-MM-DD HH:mm:ss");
-          const datesToUse = (dateRange?.startDate && dateRange?.endDate)
-            ? dateRange
-            : { startDate: todayStart, endDate: todayEnd };
-
-          // ensure parent has the dateRange (Date component will reconcile if user changes)
-          if (!dateRange?.startDate || !dateRange?.endDate) {
-            setDateRange(datesToUse);
-          }
-
-          // if nothing selected yet, pick first option and fetch backend with dateRange (today fallback)
-          if ((!activeLearningOption || activeLearningOption === undefined) && opts.length > 0) {
-            const firstVal = opts[0].value;
-            setActiveLearningOption(firstVal);
-            // send the computed dates (today if none) with the selected gate
-            fetchFromBackend(datesToUse, firstVal);
+          // Set first gate if not already set
+          if (!activeLearningOption && opts.length > 0) {
+            setActiveLearningOption(opts[0].value);
           }
         } else {
           setGateOptions([]);
         }
       } catch (err) {
-        console.warn("Failed to load gate options:", err);
         setGateOptions([]);
       }
     };
-
     fetchGateOptions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
@@ -188,11 +166,16 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
 
   // When user picks date range (Date component updates dateRange), fetch if gate selected
   useEffect(() => {
-    if (activeLearningOption && dateRange?.startDate && dateRange?.endDate) {
+    // Only fetch when both are set
+    if (
+      activeLearningOption &&
+      dateRange?.startDate &&
+      dateRange?.endDate
+    ) {
       fetchFromBackend(dateRange, activeLearningOption);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateRange]);
+  }, [activeLearningOption, dateRange]);
 
   // handler called when SelectControls changes
   const handleSelectChange = (val) => {

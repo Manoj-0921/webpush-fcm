@@ -4,8 +4,8 @@ import dayjs from "dayjs";
 import "./Date.css";
 
 const Date = ({ fetchFromBackend, setDateRange }) => {
-  const [startDate, setStartDate] = useState(dayjs());
-  const [endDate, setEndDate] = useState(dayjs());
+  const [startDate, setStartDate] = useState(dayjs().startOf("day"));
+  const [endDate, setEndDate] = useState(dayjs().endOf("day"));
   const [activeTab, setActiveTab] = useState("today");
 
   const handleShortcutClick = (type) => {
