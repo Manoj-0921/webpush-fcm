@@ -23,7 +23,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
 
   // Robust logout logic
   const handleLogout = async () => {
-    await axios.post("https://7b2983718e7a.ngrok-free.app/api/logout_mobile", {
+    await axios.post("https://backend.schmidvision.com/api/logout_mobile", {
       username: token,
     });
     setToken(null);
@@ -54,7 +54,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     try {
       console.log("Fetching data with:", { startDate, endDate, gate: option || activeLearningOption });
       const response = await axios.post(
-        "https://7b2983718e7a.ngrok-free.app/api/active_learning_mobile",
+        "https://backend.schmidvision.com/api/active_learning_mobile",
         { startDate, endDate, gate: option || activeLearningOption }, // send option
         {
           headers: {
@@ -70,7 +70,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
-            "https://7b2983718e7a.ngrok-free.app/api/check_reset_elgibility",
+            "https://backend.schmidvision.com/api/check_reset_elgibility",
             { username, refreshToken }
           );
 
@@ -119,7 +119,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
   useEffect(() => {
     const fetchGateOptions = async () => {
       try {
-        const resp = await axios.post("https://7b2983718e7a.ngrok-free.app/api/gates", {});
+        const resp = await axios.post("https://backend.schmidvision.com/api/gates", {});
         console.log(resp.data, "gates response");
 
         if (resp.status === 200 && resp.data && resp.data.success) {

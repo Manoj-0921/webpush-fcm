@@ -28,7 +28,7 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
     try {
       // POST with empty body and proper config (backend returns [hierarchyData])
       const response = await axios.post(
-        "https://7b2983718e7a.ngrok-free.app/api/get_departments",
+        "https://backend.schmidvision.com/api/get_departments",
         {}, // empty body
         {
           headers: {
@@ -143,7 +143,7 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
     console.log(deptToSend, teamToSend, start.format("YYYY-MM-DD: HH:mm:ss"), end.format("YYYY-MM-DD: HH:mm:ss"), "fetchMembers params");
     try {
       const response = await axios.post(
-        "https://7b2983718e7a.ngrok-free.app/api/get_department_team_members",
+        "https://backend.schmidvision.com/api/get_department_team_members",
         {
           department: deptToSend,
           team: teamToSend,
@@ -175,7 +175,7 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
   const handleLogout = async () => {
-    await axios.post("https://7b2983718e7a.ngrok-free.app/api/logout_mobile", {
+    await axios.post("https://backend.schmidvision.com/api/logout_mobile", {
       username: token,
     });
     setToken(null);
@@ -192,7 +192,7 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
   const handleToggleNotification = async (systemId, enabled) => {
     try {
       await axios.post(
-        "https://7b2983718e7a.ngrok-free.app/api/update_notification_status",
+        "https://backend.schmidvision.com/api/update_notification_status",
         { system_id: systemId, enabled },
         {
           headers: {
