@@ -36,9 +36,42 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     localStorage.removeItem("username");
   };
 
-  // Data fetching logic with token refresh
-  // now accepts optional `option` and sends it to backend
-  const fetchFromBackend = async (dates, option) => {
+
+  
+  // fetch select options from backend (run on mount and when token changes)
+  useEffect(() => {
+    const fetchGateOptions = async () => {
+      try {
+        const resp = await axios.post("https://backend.schmidvision.com/api/gates", {});
+        if (resp.status === 200 && resp.data && resp.data.success) {
+          let gatesRaw = resp.data.gates;
+          if (gatesRaw && !Array.isArray(gatesRaw) && typeof gatesRaw === "object") {
+            gatesRaw = Object.values(gatesRaw);
+          }
+          const gates = Array.isArray(gatesRaw) ? gatesRaw : [];
+          const opts = gates.map((g) =>
+            typeof g === "string"
+              ? { label: g, value: g }
+              : { label: g.name || g.label || String(g.id ?? g.value), value: g.id ?? g.value ?? g.name }
+          );
+          setGateOptions(opts);
+
+          // Set first gate if not already set
+          if (!activeLearningOption && opts.length > 0) {
+            setActiveLearningOption(opts[0].value);
+          }
+        } else {
+          setGateOptions([]);
+        }
+      } catch (err) {
+        setGateOptions([]);
+      }
+    };
+    fetchGateOptions();
+  
+  }, [token]);
+
+const fetchFromBackend = async (dates, option) => {
     const { startDate, endDate } = dates || dateRange;
 
     // guard: don't call backend when dates are missing -> avoids 400
@@ -115,40 +148,6 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     }
   };
 
-  // fetch select options from backend (run on mount and when token changes)
-  useEffect(() => {
-    const fetchGateOptions = async () => {
-      try {
-        const resp = await axios.post("https://backend.schmidvision.com/api/gates", {});
-        if (resp.status === 200 && resp.data && resp.data.success) {
-          let gatesRaw = resp.data.gates;
-          if (gatesRaw && !Array.isArray(gatesRaw) && typeof gatesRaw === "object") {
-            gatesRaw = Object.values(gatesRaw);
-          }
-          const gates = Array.isArray(gatesRaw) ? gatesRaw : [];
-          const opts = gates.map((g) =>
-            typeof g === "string"
-              ? { label: g, value: g }
-              : { label: g.name || g.label || String(g.id ?? g.value), value: g.id ?? g.value ?? g.name }
-          );
-          setGateOptions(opts);
-
-          // Set first gate if not already set
-          if (!activeLearningOption && opts.length > 0) {
-            setActiveLearningOption(opts[0].value);
-          }
-        } else {
-          setGateOptions([]);
-        }
-      } catch (err) {
-        setGateOptions([]);
-      }
-    };
-    fetchGateOptions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
-
-  // When gate options arrive set default selection but only fetch if dates exist.
   useEffect(() => {
     if (gateOptions.length === 0) return;
 
@@ -156,12 +155,12 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
       const firstVal = gateOptions[0].value;
       setActiveLearningOption(firstVal);
 
-      // only fetch when dateRange has start/end
+
       if (dateRange?.startDate && dateRange?.endDate) {
         fetchFromBackend(dateRange, firstVal);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [gateOptions]);
 
   // When user picks date range (Date component updates dateRange), fetch if gate selected
