@@ -166,11 +166,12 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
 
   // When user picks date range (Date component updates dateRange), fetch if gate selected
   useEffect(() => {
-    // Only fetch when both are set
+    const accessToken = localStorage.getItem("accessToken");
     if (
       activeLearningOption &&
       dateRange?.startDate &&
-      dateRange?.endDate
+      dateRange?.endDate &&
+      accessToken
     ) {
       fetchFromBackend(dateRange, activeLearningOption);
     }
