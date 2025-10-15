@@ -37,4 +37,41 @@ onMessage(messaging, (payload) => {
   }
 });
 
+// Handle background messages
+self.addEventListener("push", (event) => {
+  try {
+    if (event.data) {
+      const data = event.data.json();
+      // If this is an FCM message, skip (let onBackgroundMessage handle it)
+      if (data && (data["firebase-messaging-msg-data"] || data["from"])) {
+        return;
+      }
+    }
+  } catch (e) {
+    // continue to handle as web push
+  }
+
+  // Handle as a normal web push
+  let data = {};
+  try {
+    if (event.data) {
+      data = event.data.json();
+    }
+  } catch (e) {
+    data = { title: "Push", body: "You have a new message." };
+  }
+
+  const title = data.title;
+  const body = data.body;
+
+  if (title && body) {
+    const options = {
+      body: body,
+      icon: "/pwa-192x192.png",
+      badge: "/pwa-192x192.png",
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+  }
+});
+
 
