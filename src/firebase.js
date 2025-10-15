@@ -21,7 +21,9 @@ export const messaging = getMessaging(app);
 
 // // Handle foreground messages
 onMessage(messaging, (payload) => {
-    if (document.visibilityState !== "visible" || !document.hasFocus()) {
+  // Only show toast if the page is visible AND focused
+  if (document.visibilityState !== "visible" || !document.hasFocus()) {
+    console.log("App not visible or not focused, skipping toast notification.");
     return;
   }
   const notificationTitle = payload.notification?.title || payload.data?.title;
@@ -31,7 +33,7 @@ onMessage(messaging, (payload) => {
     toast.info(`${notificationTitle}\n${notificationBody}`, {
       position: "top-right",
       autoClose: 5000,
-      closeButton:false
+      closeButton: false
     });
   }
 });
