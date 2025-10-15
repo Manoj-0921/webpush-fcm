@@ -38,8 +38,7 @@ self.addEventListener("push", (event) => {
       if ( data && (
           data["firebase-messaging-msg-data"] ||
           data["notification"] ||
-          data["from"]))
-           {
+          data["from"])) {
         // It's an FCM message, skip handling here
         return;
       }
