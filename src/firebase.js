@@ -21,6 +21,10 @@ export const messaging = getMessaging(app);
 
 // // Handle foreground messages
 onMessage(messaging, (payload) => {
+    if (document.visibilityState !== "visible") {
+    // Don't show toast if not visible (let sw.js handle notification)
+    return;
+  }
   const notificationTitle = payload.notification?.title || payload.data?.title;
   const notificationBody = payload.notification?.body || payload.data?.body;
 

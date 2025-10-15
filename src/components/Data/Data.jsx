@@ -20,14 +20,7 @@ dayjs.extend(duration);
 const Data = ({ data, onRefresh, onOptionChange }) => {
   const [activeTab, setActiveTab] = useState("events");
   const [pageIndex, setPageIndex] = useState(0);
-  const [activeLearningOption, setActiveLearningOption] = useState("main");
-
-  // Do NOT call onRefresh here — emit option change separately
-  const handleOptionChange = (val) => {
-    setActiveLearningOption(val);
-    if (typeof onOptionChange === "function") onOptionChange(val);
-  };
-
+ 
   const itemsPerPage = 5;
 
   if (!Array.isArray(data)) {
