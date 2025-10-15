@@ -35,7 +35,11 @@ self.addEventListener("push", (event) => {
   try {
     if (event.data) {
       const data = event.data.json();
-      if (data && data["firebase-messaging-msg-data"]) {
+      if ( data && (
+          data["firebase-messaging-msg-data"] ||
+          data["notification"] ||
+          data["from"]))
+           {
         // It's an FCM message, skip handling here
         return;
       }
