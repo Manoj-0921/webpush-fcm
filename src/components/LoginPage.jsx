@@ -29,9 +29,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       } else {
         setError("🚫 Notification permission denied");
       }
-    } else {
-      setError("✅ Notification permission already " + Notification.permission);
-    }
+    } 
   };
 
   const handleLogin = async (values) => {
