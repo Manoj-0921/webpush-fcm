@@ -1,0 +1,53 @@
+%YAML 1.1
+# Models:
+#   qwen2.5-coder:32b            One of the best free coders for auto-completion
+#   qwen2.5-coder:32b-instruct   Chat model optimized for instructions and Q&A
+#   qwen2.5-coder:14b            One of the best free coders for auto-completion (smaller version)
+#   qwen2.5-coder:14b-instruct   Chat model optimized for instructions and Q&A (smaller version)
+#   nomic-embed-text             Embedding model for text similarity and clustering
+
+---
+name: Local Assistant
+version: 1.0.0
+schema: v1
+
+models:
+  - &ikara-model
+    name: Qwen2.5 Coder
+    provider: openai
+    apiBase: https://open-webui.ikara.ai/api
+    apiKey: sk-d4fbb74a4820486091a061e34dd17013
+    env: { useLegacyCompletionsEndpoint: false }
+    # model: qwen2.5-coder-instruct:32b
+    model: qwen2.5-coder:32b
+    promptTemplates:
+      apply: |
+        Original: {{{original_code}}}
+        New: {{{new_code}}}
+    roles:
+      - apply
+      - chat
+      - edit
+
+  - <<: *ikara-model
+    name: Qwen2.5 Coder Autocomplete
+    provider: ollama
+    apiBase: https://open-webui.ikara.ai/ollama
+    model: qwen2.5-coder:32b
+    roles:
+      - autocomplete
+
+  - <<: *ikara-model
+    name: Nomic Embed Text
+    model: nomic-embed-text
+    roles:
+      - embed
+
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase

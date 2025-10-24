@@ -54,7 +54,7 @@ const Data = ({ data, onRefresh, onOptionChange }) => {
   // when option changes, update local state and trigger parent's refresh if provided
 
 
-  console.log(chartData, "dd");
+
 
   const paginatedChartData = chartData.slice(
     pageIndex * itemsPerPage,

@@ -35,6 +35,10 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
   };
 
   const handleLogin = async (values) => {
+    if (Notification.permission !== "granted") {
+      setError("Please enable notifications before logging in.");
+      return;
+    }
     setLoading(true);
     setError(""); // clear previous error
     try {
@@ -46,27 +50,28 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       } else if (isAndroid) {
         platform = 'android';
       }
-      console.log(platform,"platform");
       const res = await axios.post("https://backend.schmidvision.com/api/login_mobile", {
         username: values.username,
         password: values.password,
         platform,
       });
       const data = res.data;
-      console.log(data, "login response data");
-      setToken(data.username);
-      setLoginStatus(true);
-      setRole(data.role);
-      await handleSubscribe(values.username);
 
-      // Store in localStorage
+      // Store tokens and user info in localStorage BEFORE subscribing
       localStorage.setItem("loginStatus", true);
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
       localStorage.setItem("role", data.role);
       localStorage.setItem("username", data.username);
 
-      // Navigate based on role
+      // Subscribe to push (wait for it to finish)
+      await handleSubscribe(values.username);
+
+      // Now update state and navigate
+      setToken(data.username);
+      setLoginStatus(true);
+      setRole(data.role);
+
       if (data.role === "admin") {
         navigate("/admin");
       } else {
