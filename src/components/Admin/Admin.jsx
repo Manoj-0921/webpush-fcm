@@ -9,18 +9,30 @@ import dayjs from "dayjs";
 const { Header, Content } = Layout;
 const { Option } = Select;
 
-const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setStatus }) => {
+const Admin = ({
+  token,
+  status,
+  handleSubscribe,
+  setToken,
+  setLoginStatus,
+  setStatus,
+}) => {
   const [hierarchyData, setHierarchyData] = useState({});
   const [selectedDept, setSelectedDept] = useState("All");
   const [selectedTeam, setSelectedTeam] = useState("All");
   const [members, setMembers] = useState([]);
   const [startDate, setStartDate] = useState(dayjs());
   const [endDate, setEndDate] = useState(dayjs());
+  const [doorMappings, setDoorMappings] = useState([]);
+  const [selectedDoor, setSelectedDoor] = useState(null);
+  // Add these after your existing useState declarations
+  const [isEditingTime, setIsEditingTime] = useState(false);
+  const [editTime, setEditTime] = useState(0);
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     fetchHierarchyData();
+    fetchDoorMappings();
     // eslint-disable-next-line
   }, []);
 
@@ -41,7 +53,9 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
       if (response.status === 200) {
         // backend returns an array with hierarchy object: [hierarchyData]
         const respData =
-          Array.isArray(response.data) && response.data.length && typeof response.data[0] === "object"
+          Array.isArray(response.data) &&
+          response.data.length &&
+          typeof response.data[0] === "object"
             ? response.data[0]
             : response.data && typeof response.data === "object"
             ? response.data
@@ -72,7 +86,9 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
           const firstDept = departments[0];
           setSelectedDept(firstDept);
 
-          const teams = Array.isArray(newResp[firstDept]) ? newResp[firstDept] : [];
+          const teams = Array.isArray(newResp[firstDept])
+            ? newResp[firstDept]
+            : [];
           if (teams.length > 0) {
             setSelectedTeam(teams[0]);
             // fetch members: if "All" selected, send nulls so backend can handle appropriately
@@ -89,6 +105,74 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
     }
   };
 
+  const fetchDoorMappings = async () => {
+    try {
+      const response = await axios.post(
+        "https://backend.schmidvision.com/fastapi/door-access/admin/get-door-mappings",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response.data, "door mappings response");
+      if (response.data.success) {
+        setDoorMappings(response.data.door_mappings);
+        // Set first door as default selected
+        if (response.data.door_mappings.length > 0) {
+          setSelectedDoor(response.data.door_mappings[0]);
+        }
+      }
+    } catch (err) {
+      console.error("❌ Error fetching door mappings:", err);
+    }
+  };
+  // Add these before the return statement
+  const handleEditClick = () => {
+    setIsEditingTime(true);
+    setEditTime(selectedDoor?.unlock_time || 0);
+  };
+
+  const handleSaveTime = async () => {
+    if (!selectedDoor) return;
+
+    try {
+      console.log("Updating unlock time:", {
+        index: selectedDoor.index,
+        door_name: selectedDoor.door_name,
+        unlock_time: String(editTime),
+      });
+
+      await axios.post(
+        "https://backend.schmidvision.com/fastapi/door-access/admin/unlock-door",
+        {
+          index: selectedDoor.index,
+          door_name: selectedDoor.door_name,
+          unlock_time: String(editTime),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Update local state
+      setDoorMappings((prev) =>
+        prev.map((door) =>
+          door.index === selectedDoor.index
+            ? { ...door, unlock_time: editTime }
+            : door
+        )
+      );
+      setSelectedDoor((prev) => ({ ...prev, unlock_time: editTime }));
+      setIsEditingTime(false);
+    } catch (err) {
+      console.error("❌ Error updating unlock time:", err);
+    }
+  };
+
   const handleDeptChange = (value) => {
     setSelectedDept(value);
     // default team to "All" if available
@@ -98,7 +182,9 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
     if (value === "All") {
       fetchMembers(null, null, startDate, endDate);
     } else {
-      const teams = Array.isArray(hierarchyData[value]) ? hierarchyData[value] : [];
+      const teams = Array.isArray(hierarchyData[value])
+        ? hierarchyData[value]
+        : [];
       const teamToFetch = teams && teams.length ? teams[0] : null;
       setSelectedTeam(teamToFetch || "All");
       if (teamToFetch === "All" || teamToFetch === null) {
@@ -116,7 +202,12 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
         // dept = all, team selection applies across all departments
         fetchMembers(null, value === "All" ? null : value, startDate, endDate);
       } else {
-        fetchMembers(selectedDept, value === "All" ? null : value, startDate, endDate);
+        fetchMembers(
+          selectedDept,
+          value === "All" ? null : value,
+          startDate,
+          endDate
+        );
       }
     }
   };
@@ -140,7 +231,13 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
     const deptToSend = department || undefined;
     const teamToSend = team || undefined;
 
-    console.log(deptToSend, teamToSend, start.format("YYYY-MM-DD: HH:mm:ss"), end.format("YYYY-MM-DD: HH:mm:ss"), "fetchMembers params");
+    console.log(
+      deptToSend,
+      teamToSend,
+      start.format("YYYY-MM-DD: HH:mm:ss"),
+      end.format("YYYY-MM-DD: HH:mm:ss"),
+      "fetchMembers params"
+    );
     try {
       const response = await axios.post(
         "https://backend.schmidvision.com/api/get_department_team_members",
@@ -203,6 +300,11 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
     } catch (err) {
       console.error(`❌ Error updating notification for ${systemId}:`, err);
     }
+  };
+
+  const handleDoorSelect = (doorName) => {
+    const door = doorMappings.find((d) => d.door_name === doorName);
+    setSelectedDoor(door || null);
   };
 
   const columns = [
@@ -289,6 +391,50 @@ const Admin = ({ token, status, handleSubscribe, setToken, setLoginStatus, setSt
                 format="YYYY-MM-DD"
               />
             </div>
+          </div>
+        </Card>
+
+        <Card className="door-control-card">
+          <div className="selectors" style={{ marginBottom: 0 }}>
+            <Select
+              placeholder="Select Gate"
+              style={{ flex: 1, minWidth: 200 }}
+              value={selectedDoor?.door_name}
+              onChange={handleDoorSelect}
+            >
+              {doorMappings.map((door) => (
+                <Option key={door.door_name} value={door.door_name}>
+                  {door.door_name}
+                </Option>
+              ))}
+            </Select>
+
+            {isEditingTime ? (
+              <div style={{ flex: 1, minWidth: 200, display: "flex", gap: 8 }}>
+                <input
+                  type="number"
+                  value={editTime}
+                  onChange={(e) => setEditTime(Number(e.target.value))}
+                  style={{
+                    flex: 1,
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    border: "1px solid #d9d9d9",
+                  }}
+                />
+                <Button type="primary" onClick={handleSaveTime}>
+                  Save
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="primary"
+                onClick={handleEditClick}
+                style={{ flex: 1, minWidth: 200 }}
+              >
+                Unlock Time: {selectedDoor?.unlock_time || 0} seconds
+              </Button>
+            )}
           </div>
         </Card>
 

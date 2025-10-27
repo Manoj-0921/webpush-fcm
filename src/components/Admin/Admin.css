@@ -14,11 +14,11 @@
   justify-content: space-between;
   padding: 0 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  position: fixed;      /* Make header fixed */
-  top: 0;               /* Stick to top */
+  position: fixed; /* Make header fixed */
+  top: 0; /* Stick to top */
   left: 0;
-  width: 100%;          /* Full width */
-  z-index: 1000;        /* Above other content */
+  width: 100%; /* Full width */
+  z-index: 1000; /* Above other content */
 }
 
 .header-left {
@@ -61,7 +61,7 @@
   padding: 24px;
   background-color: #f0f2f5;
   overflow-y: auto;
-  margin-top: 64px;     /* Add margin equal to header height */
+  margin-top: 64px; /* Add margin equal to header height */
 }
 
 .selectors-card {
@@ -112,6 +112,82 @@
   overflow-x: auto;
 }
 
+/* Door and Time Card styling */
+.door-card,
+.time-card {
+  margin-bottom: 24px;
+}
+
+.door-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  margin-bottom: 24px;
+}
+
+.door-card-inner {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.door-select-block,
+.unlock-time-block {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+}
+
+.door-label {
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: #595959;
+}
+
+.unlock-time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unlock-time-value {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.unlock-time-input {
+  width: 32px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 2px 4px;
+  background: #f7f7f7;
+}
+
+/* Door Control Card styling */
+.door-control-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  margin-bottom: 24px;
+}
+
+.door-control-card .selectors {
+  margin-bottom: 0;
+}
+
+.door-control-card input[type="number"] {
+  min-width: 0;
+  font-size: 14px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .app-header {
@@ -133,6 +209,16 @@
 
   .selectors,
   .date-range-wrapper {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .door-card_inner {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .door-control-card .selectors {
     flex-direction: column;
     gap: 16px;
   }

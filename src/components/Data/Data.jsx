@@ -158,16 +158,17 @@ const Data = ({ data, onRefresh, onOptionChange }) => {
                 {data
                   .sort((a, b) => dayjs(b.date) - dayjs(a.date))
                   .map((day) => (
+                
                     <li key={day.date} className="daily-record-item">
                       <div className="daily-record-header">
                         <strong className="record-date">{day.date}:</strong>
 
-                        {Array.isArray(day.records) &&
-                          day.records.length > 0 && (
-                            <span className="daily-total-duration">
-                              Total:{" "}
-                              {(() => {
-                                let dayMinutes = 0;
+                        {Array.isArray(day.records) && day.records.length > 0 && (
+                            console.log("day records (reverse)", day.records.slice().reverse()),
+                          <span className="daily-total-duration">
+                            Total:{" "}
+                            {(() => {
+                              let dayMinutes = 0;
                                 day.records.forEach((record) => {
                                   if (record.entry && record.exit) {
                                     const entry = dayjs(
@@ -192,7 +193,8 @@ const Data = ({ data, onRefresh, onOptionChange }) => {
                       </div>
                       {Array.isArray(day.records) && day.records.length > 0 ? (
                         <ul className="individual-record-list">
-                          {day.records.map((record, index) => {
+                          {day.records.slice().reverse().map((record, index) => {
+
                             const hasValidEntry = !!record.entry;
                             const hasValidExit = !!record.exit;
 

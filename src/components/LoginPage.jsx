@@ -11,25 +11,35 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
   const [loading, setLoading] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState("default");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // Add this at the top with your other state
 
   // Automatically clear error after 2 seconds
   useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => setError(""), 2000);
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError("");
+        setSuccess("");
+      }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [error]);
+  }, [error, success]);
 
   const enableNotifications = async () => {
+    if (Notification.permission === "granted") {
+      setSuccess("✅ Notifications are already enabled.");
+      return;
+    }
     if (Notification.permission === "default") {
       const permission = await Notification.requestPermission();
       setPermissionStatus(permission);
       if (permission === "granted") {
-        window.location.reload();
+        setSuccess("✅ Notifications enabled successfully.");
       } else {
         setError("🚫 Notification permission denied");
       }
-    } 
+    } else if (Notification.permission === "denied") {
+      setError("🚫 Notification permission denied");
+    }
   };
 
   const handleLogin = async (values) => {
@@ -103,6 +113,15 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
           <Alert
             message={error}
             type="error"
+            showIcon
+            style={{ marginBottom: 16 }}
+          />
+        )}
+        {/* Show success message if exists */}
+        {success && (
+          <Alert
+            message={success}
+            type="success"
             showIcon
             style={{ marginBottom: 16 }}
           />
