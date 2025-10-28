@@ -50,19 +50,23 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
     setLoading(true);
     setError(""); // clear previous error
     try {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isIOS =
+        /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       const isAndroid = /Android/.test(navigator.userAgent);
-      let platform = 'web';
+      let platform = "web";
       if (isIOS) {
-        platform = 'ios';
+        platform = "ios";
       } else if (isAndroid) {
-        platform = 'android';
+        platform = "android";
       }
-      const res = await axios.post("https://backend.schmidvision.com/api/login_mobile", {
-        username: values.username,
-        password: values.password,
-        platform,
-      });
+      const res = await axios.post(
+        "https://panchajanya.schmidvision.com/api/login_mobile",
+        {
+          username: values.username,
+          password: values.password,
+          platform,
+        }
+      );
       const data = res.data;
 
       // Store tokens and user info in localStorage BEFORE subscribing

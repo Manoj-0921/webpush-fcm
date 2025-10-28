@@ -10,7 +10,14 @@ import axios from "axios";
 
 const { Header, Content, Footer } = Layout;
 
-function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, setStatus }) {
+function HomePage({
+  token,
+  status,
+  handleSubscribe,
+  setToken,
+  setLoginStatus,
+  setStatus,
+}) {
   const [data, setData] = useState([]);
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
   const [activeLearningOption, setActiveLearningOption] = useState(undefined); // no default
@@ -19,11 +26,9 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     token: { borderRadiusLG },
   } = theme.useToken();
 
-
-
   // Robust logout logic
   const handleLogout = async () => {
-    await axios.post("https://backend.schmidvision.com/api/logout_mobile", {
+    await axios.post("https://panchajanya.schmidvision.com/api/logout_mobile", {
       username: token,
     });
     setToken(null);
@@ -36,13 +41,14 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     localStorage.removeItem("username");
   };
 
-
   const fetchFromBackend = async (dates, option) => {
     const { startDate, endDate } = dates || dateRange;
 
     // guard: don't call backend when dates are missing -> avoids 400
     if (!startDate || !endDate) {
-      console.warn("fetchFromBackend: missing startDate or endDate, skipping request");
+      console.warn(
+        "fetchFromBackend: missing startDate or endDate, skipping request"
+      );
       return;
     }
 
@@ -51,9 +57,13 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
     const refreshToken = localStorage.getItem("refreshToken");
 
     try {
-      console.log("Fetching data with:", { startDate, endDate, gate: option || activeLearningOption });
+      console.log("Fetching data with:", {
+        startDate,
+        endDate,
+        gate: option || activeLearningOption,
+      });
       const response = await axios.post(
-        "https://backend.schmidvision.com/api/active_learning_mobile",
+        "https://panchajanya.schmidvision.com/api/active_learning_mobile",
         { startDate, endDate, gate: option || activeLearningOption }, // send option
         {
           headers: {
@@ -69,7 +79,7 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
       if (error.response && error.response.status === 403 && refreshToken) {
         try {
           const refreshResponse = await axios.post(
-            "https://backend.schmidvision.com/api/check_reset_elgibility",
+            "https://panchajanya.schmidvision.com/api/check_reset_elgibility",
             { username, refreshToken }
           );
 
@@ -118,17 +128,27 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
   useEffect(() => {
     const fetchGateOptions = async () => {
       try {
-        const resp = await axios.post("https://backend.schmidvision.com/api/gates", {});
+        const resp = await axios.post(
+          "https://panchajanya.schmidvision.com/api/gates",
+          {}
+        );
         if (resp.status === 200 && resp.data && resp.data.success) {
           let gatesRaw = resp.data.gates;
-          if (gatesRaw && !Array.isArray(gatesRaw) && typeof gatesRaw === "object") {
+          if (
+            gatesRaw &&
+            !Array.isArray(gatesRaw) &&
+            typeof gatesRaw === "object"
+          ) {
             gatesRaw = Object.values(gatesRaw);
           }
           const gates = Array.isArray(gatesRaw) ? gatesRaw : [];
           const opts = gates.map((g) =>
             typeof g === "string"
               ? { label: g, value: g }
-              : { label: g.name || g.label || String(g.id ?? g.value), value: g.id ?? g.value ?? g.name }
+              : {
+                  label: g.name || g.label || String(g.id ?? g.value),
+                  value: g.id ?? g.value ?? g.name,
+                }
           );
           setGateOptions(opts);
 
@@ -144,23 +164,22 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
       }
     };
     fetchGateOptions();
-  
   }, [token]);
-
 
   useEffect(() => {
     if (gateOptions.length === 0) return;
 
-    if ((!activeLearningOption || activeLearningOption === undefined) && gateOptions.length > 0) {
+    if (
+      (!activeLearningOption || activeLearningOption === undefined) &&
+      gateOptions.length > 0
+    ) {
       const firstVal = gateOptions[0].value;
       setActiveLearningOption(firstVal);
-
 
       if (dateRange?.startDate && dateRange?.endDate) {
         fetchFromBackend(dateRange, firstVal);
       }
     }
-  
   }, [gateOptions]);
 
   // When user picks date range (Date component updates dateRange), fetch if gate selected
@@ -198,12 +217,29 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
         </Header>
 
         <Content style={{ marginTop: 64, overflow: "initial" }}>
-          <div style={{ paddingTop: 4, textAlign: "center", background: " #f5f6fa", borderRadius: borderRadiusLG }}>
-            <Date fetchFromBackend={fetchFromBackend} setDateRange={setDateRange} />
+          <div
+            style={{
+              paddingTop: 4,
+              textAlign: "center",
+              background: " #f5f6fa",
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            <Date
+              fetchFromBackend={fetchFromBackend}
+              setDateRange={setDateRange}
+            />
           </div>
 
           {/* pass value and handler so select sends option -> backend with dateRange */}
-          <div style={{ paddingTop: 1, textAlign: "center", background: " #f5f6fa", borderRadius: borderRadiusLG }}>
+          <div
+            style={{
+              paddingTop: 1,
+              textAlign: "center",
+              background: " #f5f6fa",
+              borderRadius: borderRadiusLG,
+            }}
+          >
             <SelectControls
               value={activeLearningOption}
               onChange={handleSelectChange}
@@ -212,8 +248,20 @@ function HomePage({ token, status, handleSubscribe, setToken, setLoginStatus, se
             />
           </div>
 
-          <div style={{ paddingTop: 1, textAlign: "center", background: " #f5f6fa", borderRadius: borderRadiusLG }}>
-            <Data data={data} onRefresh={() => fetchFromBackend(dateRange, activeLearningOption)} />
+          <div
+            style={{
+              paddingTop: 1,
+              textAlign: "center",
+              background: " #f5f6fa",
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            <Data
+              data={data}
+              onRefresh={() =>
+                fetchFromBackend(dateRange, activeLearningOption)
+              }
+            />
           </div>
         </Content>
 

@@ -8,17 +8,18 @@ import { getToken } from "firebase/messaging";
 import axios from "axios";
 
 export async function subscribeToPush(username) {
-  if (!('serviceWorker' in navigator)) {
-    throw new Error('Service workers are not supported in this browser.');
+  if (!("serviceWorker" in navigator)) {
+    throw new Error("Service workers are not supported in this browser.");
   }
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isAndroid = /Android/.test(navigator.userAgent);
-  let platform = 'web';
+  let platform = "web";
   if (isIOS) {
-    platform = 'ios';
+    platform = "ios";
   } else if (isAndroid) {
-    platform = 'android';
+    platform = "android";
   }
 
   try {
@@ -33,8 +34,8 @@ export async function subscribeToPush(username) {
     const registration = await navigator.serviceWorker.ready;
     if (isIOS) {
       // Use Web Push for iOS
-      if (!('PushManager' in window)) {
-        throw new Error('Push messaging is not supported on this browser.');
+      if (!("PushManager" in window)) {
+        throw new Error("Push messaging is not supported on this browser.");
       }
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -43,30 +44,37 @@ export async function subscribeToPush(username) {
         ),
       });
       subscriptionToken = subscription;
-      token_type = 'web-push';
+      token_type = "web-push";
     } else {
       // Use FCM for Android/other
       // TODO: You need to replace 'YOUR_VAPID_KEY' with your actual VAPID key from Firebase console
-      const fcmToken = await getToken(messaging, { 
-        vapidKey: "BKjARESEQ_QEOC_QEGf7Ps86FAd3vvBSTeYbj8DUmSjGU6oWDaW0yzPA_EijKDJcE1_ImXFPi8yzE5srY9S82Gg",
-        serviceWorkerRegistration: registration 
+      const fcmToken = await getToken(messaging, {
+        vapidKey:
+          "BKjARESEQ_QEOC_QEGf7Ps86FAd3vvBSTeYbj8DUmSjGU6oWDaW0yzPA_EijKDJcE1_ImXFPi8yzE5srY9S82Gg",
+        serviceWorkerRegistration: registration,
       });
       if (!fcmToken) {
         throw new Error("Could not get FCM token.");
       }
       subscriptionToken = { token: fcmToken }; // Standardize the token format
-      token_type = 'fcm';
+      token_type = "fcm";
     }
 
-    console.log(subscriptionToken, "subscription", username, "token", token_type, "token_type");
-    await axios.post("https://backend.schmidvision.com/api/subscribe", {
+    console.log(
+      subscriptionToken,
+      "subscription",
+      username,
+      "token",
+      token_type,
+      "token_type"
+    );
+    await axios.post("https://panchajanya.schmidvision.com/api/subscribe", {
       username,
       subscription: subscriptionToken,
       token_type,
       platform,
     });
     console.log("Subscribed to push");
-
   } catch (error) {
     console.error("Subscription failed:", error);
     throw error;

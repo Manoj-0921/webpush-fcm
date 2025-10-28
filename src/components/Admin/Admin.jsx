@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Select, Table, Switch, Card, DatePicker, Button } from "antd";
-import { LogoutOutlined } from "@ant-design/icons";
+import {
+  Layout,
+  Select,
+  Table,
+  Switch,
+  Card,
+  DatePicker,
+  Button,
+  Input,
+} from "antd";
+import { LogoutOutlined, SearchOutlined } from "@ant-design/icons";
 import "./Admin.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +37,7 @@ const Admin = ({
   // Add these after your existing useState declarations
   const [isEditingTime, setIsEditingTime] = useState(false);
   const [editTime, setEditTime] = useState(0);
+  const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,7 +50,7 @@ const Admin = ({
     try {
       // POST with empty body and proper config (backend returns [hierarchyData])
       const response = await axios.post(
-        "https://backend.schmidvision.com/api/get_departments",
+        "https://panchajanya.schmidvision.com/api/get_departments",
         {}, // empty body
         {
           headers: {
@@ -108,7 +118,7 @@ const Admin = ({
   const fetchDoorMappings = async () => {
     try {
       const response = await axios.post(
-        "https://backend.schmidvision.com/fastapi/door-access/admin/get-door-mappings",
+        "https://panchajanya.schmidvision.com/fastapi/door-access/admin/get-door-mappings",
         {},
         {
           headers: {
@@ -145,7 +155,7 @@ const Admin = ({
       });
 
       await axios.post(
-        "https://backend.schmidvision.com/fastapi/door-access/admin/unlock-door",
+        "https://panchajanya.schmidvision.com/fastapi/door-access/admin/unlock-door",
         {
           index: selectedDoor.index,
           door_name: selectedDoor.door_name,
@@ -240,7 +250,7 @@ const Admin = ({
     );
     try {
       const response = await axios.post(
-        "https://backend.schmidvision.com/api/get_department_team_members",
+        "https://panchajanya.schmidvision.com/api/get_department_team_members",
         {
           department: deptToSend,
           team: teamToSend,
@@ -272,7 +282,7 @@ const Admin = ({
 
   // --- KEEP YOUR ROBUST LOGOUT LOGIC HERE ---
   const handleLogout = async () => {
-    await axios.post("https://backend.schmidvision.com/api/logout_mobile", {
+    await axios.post("https://panchajanya.schmidvision.com/api/logout_mobile", {
       username: token,
     });
     setToken(null);
@@ -289,7 +299,7 @@ const Admin = ({
   const handleToggleNotification = async (systemId, enabled) => {
     try {
       await axios.post(
-        "https://backend.schmidvision.com/api/update_notification_status",
+        "https://panchajanya.schmidvision.com/api/update_notification_status",
         { system_id: systemId, enabled },
         {
           headers: {
@@ -307,8 +317,17 @@ const Admin = ({
     setSelectedDoor(door || null);
   };
 
+  // Filter members based on search text
+  const filteredMembers = members.filter((member) =>
+    member.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   const columns = [
-    { title: "Member", dataIndex: "name", key: "name" },
+    {
+      title: "Member",
+      dataIndex: "name",
+      key: "name",
+    },
     {
       title: "Enable",
       key: "enable",
@@ -442,8 +461,25 @@ const Admin = ({
         </Card>
 
         <div className="table-wrapper">
+          <div
+            style={{
+              marginBottom: 16,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <Input
+              placeholder="Search members"
+              prefix={<SearchOutlined />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ maxWidth: 300 }}
+              allowClear
+            />
+          </div>
           <Table
-            dataSource={members}
+            dataSource={filteredMembers}
             columns={columns}
             pagination={false}
             scroll={{ x: true }}
