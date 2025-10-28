@@ -342,6 +342,9 @@ const Admin = ({
       <Content className="app-content">
         <Card className="selectors-card">
           <div className="selectors">
+            <label style={{ fontWeight: "500", marginTop: "2px" }}>
+              Deapartment
+            </label>
             <Select
               placeholder="Select Department"
               style={{ width: "100%" }}
@@ -354,7 +357,7 @@ const Admin = ({
                 </Option>
               ))}
             </Select>
-
+            <label>Team</label>
             <Select
               placeholder="Select Team"
               style={{ width: "100%" }}
@@ -432,7 +435,7 @@ const Admin = ({
                 onClick={handleEditClick}
                 style={{ flex: 1, minWidth: 200 }}
               >
-                Unlock Time: {selectedDoor?.unlock_time || 0} seconds
+                Unlock: {selectedDoor?.unlock_time || 0} seconds
               </Button>
             )}
           </div>
