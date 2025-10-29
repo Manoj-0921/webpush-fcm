@@ -52,21 +52,100 @@
 }
 
 .logout-icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(59, 53, 53, 0.1);
 }
 
 /* Content Area */
 .app-content {
   flex: 1;
-  padding: 24px;
+
   background-color: #f0f2f5;
   overflow-y: auto;
-  margin-top: 64px; /* Add margin equal to header height */
+  margin-top: 64px;
+}
+
+.app-content .ant-tabs {
+  background: white;
+  padding: 0; /* <-- Remove side padding */
+  border-radius: 8px;
+  margin-bottom: 4px;
+  width: 100%; /* <-- Ensure tabs fill the container */
+}
+
+.app-content .ant-tabs-content {
+  margin-top: 4px;
+}
+
+.app-content .ant-tabs-nav {
+  width: 100%;
+}
+
+.app-content .ant-tabs-nav-list {
+  width: 100%;
+  display: flex;
+}
+
+.app-content .ant-tabs-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  background: #fff !important; /* Inactive tabs are white */
+  color: #222 !important; /* Inactive tabs have dark text */
+  border: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 12px 0 !important;
+  min-width: 200px;
+  text-align: center;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.app-content .ant-tabs-tab-active {
+  background: #4a5568 !important; /* Active tab is dark */
+  color: #fff !important; /* Active tab has white text */
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.app-content .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #fff !important;
+}
+
+.app-content .ant-tabs-tab .ant-tabs-tab-btn {
+  color: inherit !important;
+}
+
+/* Reverse hover: inactive tabs turn dark on hover */
+.app-content .ant-tabs-tab:not(.ant-tabs-tab-active):hover {
+  background: #4a5568 !important;
+  color: #fff !important;
+}
+
+.app-content .ant-tabs-tab:not(.ant-tabs-tab-active):hover .ant-tabs-tab-btn {
+  color: #fff !important;
+}
+
+.app-content .ant-tabs-ink-bar {
+  display: none !important;
+}
+
+.app-content .ant-tabs-tab:not(.ant-tabs-tab-active):hover {
+  background: #fff !important; /* White background on hover */
+  color: #222 !important; /* Dark text on hover */
+}
+
+.app-content .ant-tabs-tab:not(.ant-tabs-tab-active):hover .ant-tabs-tab-btn {
+  color: #222 !important; /* Ensure tab label is dark */
 }
 
 .selectors-card {
   background: #ffffff;
-  padding: 24px;
+  padding: 32px; /* <-- Increased padding for more space inside */
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
   margin-bottom: 24px;
@@ -106,7 +185,7 @@
 /* Table styling */
 .table-wrapper {
   background: #ffffff;
-  padding: 24px;
+  padding: 32px; /* <-- Increased padding for more space inside */
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
   overflow-x: auto;
@@ -173,7 +252,7 @@
 /* Door Control Card styling */
 .door-control-card {
   background: #ffffff;
-  padding: 24px;
+  padding: 32px; /* <-- Increased padding for more space inside */
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
   margin-bottom: 24px;
@@ -199,12 +278,14 @@
   }
 
   .app-content {
-    padding: 16px;
+    padding: 16px 10px;
   }
 
   .selectors-card,
-  .table-wrapper {
-    padding: 16px;
+  .table-wrapper,
+  .door-control-card {
+    padding: 18px;
+    margin: 3px; /* Slightly less padding for tablet/mobile */
   }
 
   .selectors,
@@ -221,5 +302,29 @@
   .door-control-card .selectors {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .app-content .ant-tabs-tab {
+    min-width: 100px;
+    font-size: 14px;
+    padding: 8px 0 !important;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-content .ant-tabs-tab {
+    min-width: 60px;
+    font-size: 12px;
+    padding: 6px 0 !important;
+    height: 36px;
+    margin: 10px;
+  }
+
+  .selectors-card,
+  .table-wrapper,
+  .door-control-card {
+    padding: 10px; /* Minimal padding for small screens */
+    margin: 10px;
   }
 }

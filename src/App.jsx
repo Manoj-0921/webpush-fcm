@@ -9,7 +9,17 @@ import "react-toastify/dist/ReactToastify.css";
 
 import "./App.css";
 
-function AppRoutes({ token, setToken, status, setStatus, loginStatus, setLoginStatus, role, setRole, handleSubscribe }) {
+function AppRoutes({
+  token,
+  setToken,
+  status,
+  setStatus,
+  loginStatus,
+  setLoginStatus,
+  role,
+  setRole,
+  handleSubscribe,
+}) {
   return (
     <Routes>
       <Route
@@ -70,7 +80,9 @@ function AppRoutes({ token, setToken, status, setStatus, loginStatus, setLoginSt
 function App() {
   const [status, setStatus] = useState("Enable Push Notifications");
   const [token, setToken] = useState(localStorage.getItem("username") || null);
-  const [loginStatus, setLoginStatus] = useState(localStorage.getItem("loginStatus") === "true");
+  const [loginStatus, setLoginStatus] = useState(
+    localStorage.getItem("loginStatus") === "true"
+  );
   const [role, setRole] = useState(localStorage.getItem("role") || "");
 
   const handleSubscribe = async (tokenToUse) => {
@@ -101,9 +113,12 @@ function App() {
           setRole={setRole}
           handleSubscribe={handleSubscribe}
         />
-       
       </BrowserRouter>
-      <ToastContainer position="top-right" autoClose={4000} hideProgressBar={true} />
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={true}
+      />
     </>
   );
 }

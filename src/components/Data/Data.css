@@ -155,9 +155,22 @@
 
 .detail-value {
   font-size: 16px;
-  font-weight: 700;
-  color: #222;
-  letter-spacing: 1px;
+  font-weight: 600;
+  color: #000000; /* Solid black for better contrast */
+  letter-spacing: 0.5px;
+}
+
+/* Add specific colors for entry and exit values */
+.entry-cell .detail-value {
+  color: #1a237e; /* Dark blue for entry time */
+}
+
+.exit-cell .detail-value {
+  color: #000000; /* Dark green for exit time */
+}
+
+.duration-cell .detail-value {
+  color: #3f51b5; /* Indigo for duration */
 }
 
 /* No data styling */
@@ -199,66 +212,95 @@
   }
 }
 
+/* Update record row and cell styling */
 .record-row {
   display: flex;
+  flex-direction: row; /* Keep it as row */
   justify-content: space-between;
-  text-align: center;
-  gap: 10px;
+  gap: 8px;
+  margin: 4px 0;
 }
 
 .record-cell {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 4px 6px; /* was 8px */
-  border: 1px solid #f0f0f0;
-  margin: 2px;
-  border-radius: 14px; /* More rounded */
+  padding: 8px 6px;
+  border-radius: 8px;
+  background-color: #e6e8fa;
   min-width: 0;
 }
 
-.entry-cell,
-.exit-cell,
-.duration-cell {
-  background-color: #e6e8fa; /* Soft blue */
-  border-radius: 14px;
-}
-
-/* Optional: Add a subtle border for separation */
-.record-cell {
-  border: 1px solid #f0f0f0;
-  margin: 2px;
-}
-.tab-refresh-btn {
-  padding: 0 6px;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-.tab-refresh-btn:hover {
-  background: #e4e8f7;
-}
-
-/* make select almost full width of the card (slightly smaller) */
-.select-card {
-  padding: 12px 16px;
-}
-
-.select-card .select-controls {
-  display: flex;
-  justify-content: center;
-}
-
-/* select width: a little less than card width */
-.fullwidth-select {
-  width: calc(100% - 32px) !important; /* leave horizontal padding inside card */
-  max-width: 440px; /* prevents it from becoming too wide on large screens */
-  min-width: 220px;
-}
-
-/* small screens: full width */
+/* Mobile optimizations - keep row layout but adjust sizes */
 @media (max-width: 480px) {
-  .fullwidth-select {
-    width: 100% !important;
-    max-width: none;
+  .record-row {
+    flex-direction: row; /* Ensure it stays as row */
+    gap: 4px; /* Reduce gap for mobile */
   }
+
+  .record-cell {
+    padding: 6px 4px;
+    min-height: 36px;
+  }
+
+  .detail-label {
+    font-size: 10px;
+    margin-bottom: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .detail-value {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Keep colors solid even on mobile */
+  .entry-cell .detail-value,
+  .exit-cell .detail-value,
+  .duration-cell .detail-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Even smaller screens - keep row but smaller text */
+@media (max-width: 360px) {
+  .record-row {
+    gap: 3px;
+  }
+
+  .record-cell {
+    padding: 4px 3px;
+  }
+
+  .detail-label {
+    font-size: 9px;
+  }
+
+  .detail-value {
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
+
+/* Enhance record cell appearance */
+.record-cell {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease;
+}
+
+.record-cell:hover {
+  background-color: #e0e2f5;
+}
+
+/* Add subtle shadows for depth */
+.individual-record-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
