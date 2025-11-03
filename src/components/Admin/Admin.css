@@ -76,6 +76,14 @@
   margin-top: 4px;
 }
 
+.app-content .ant-tabs-content-holder {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  margin: 24px;
+  padding: 0;
+}
+
 .app-content .ant-tabs-nav {
   width: 100%;
 }
@@ -90,8 +98,8 @@
   min-width: 0;
   background: #fff !important; /* Inactive tabs are white */
   color: #222 !important; /* Inactive tabs have dark text */
-  border: none !important;
-  border-radius: 0 !important;
+  /* border: none !important;
+  border-radius: 0 !important; */
   margin: 0 !important;
   padding: 12px 0 !important;
   min-width: 200px;
@@ -310,6 +318,11 @@
     padding: 8px 0 !important;
     height: 44px;
   }
+
+  .app-content .ant-tabs-content-holder {
+    border-radius: 12px;
+    margin: 8px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -326,5 +339,10 @@
   .door-control-card {
     padding: 10px; /* Minimal padding for small screens */
     margin: 10px;
+  }
+
+  .app-content .ant-tabs-content-holder {
+    border-radius: 8px;
+    margin: 2px;
   }
 }

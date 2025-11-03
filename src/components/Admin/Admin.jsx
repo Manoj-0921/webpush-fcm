@@ -449,7 +449,7 @@ const Admin = ({
                   <Card className="selectors-card">
                     <div className="selectors">
                       <label style={{ fontWeight: "500", marginTop: "2px" }}>
-                        Deapartment
+                        Department
                       </label>
                       <Select
                         placeholder="Select Department"
@@ -582,7 +582,7 @@ const Admin = ({
             },
             {
               key: "2",
-              label: "Settings",
+              label: "Admin Profile",
               children: <UserProfile token={token} />,
             },
           ]}
