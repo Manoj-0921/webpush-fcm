@@ -59,11 +59,16 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       } else if (isAndroid) {
         platform = "android";
       }
+
+      // Trim spaces from username and password before sending
+      const username = values.username.trim();
+      const password = values.password.trim();
+
       const res = await axios.post(
         "https://panchajanya.schmidvision.com/api/login_mobile",
         {
-          username: values.username,
-          password: values.password,
+          username,
+          password,
           platform,
         }
       );
@@ -77,7 +82,7 @@ function LoginPage({ setToken, setLoginStatus, handleSubscribe, setRole }) {
       localStorage.setItem("username", data.username);
 
       // Subscribe to push (wait for it to finish)
-      await handleSubscribe(values.username);
+      await handleSubscribe(username);
 
       // Now update state and navigate
       setToken(data.username);
